@@ -4,10 +4,14 @@ import com.benz.reactive.dao.EmployeeRepository;
 import com.benz.reactive.model.Employee;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
+import reactor.core.publisher.Flux;
+import reactor.core.publisher.Mono;
 
 import javax.ws.rs.Consumes;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
+import java.util.Date;
+import java.util.List;
 import java.util.Map;
 
 @RestController
@@ -24,12 +28,22 @@ public class EmpController {
 
     @PostMapping("/save")
     @Consumes({MediaType.APPLICATION_JSON})
-    public void saveEmp(Employee emp)
+    public void saveEmp(@RequestBody Mono<Employee> emp)
     {
-            if(emp.getId()!=0 && !emp.getEname().trim().isEmpty())
-                empRepo.saveEmp(emp);
-            else
-                throw new NullPointerException();
+             emp.subscribe(e-> {
+                 e.setDate(new Date());
+                 empRepo.saveEmp(e);
+             });
+    }
+
+    @PostMapping("/save/all")
+    @Consumes({MediaType.APPLICATION_JSON})
+    public void saveEmpAll(@RequestBody Flux<Employee> emps)
+    {
+        emps.collectMap(e->{
+           e.setDate(new Date());
+
+        });
     }
 
     @DeleteMapping("/delete")
@@ -40,6 +54,16 @@ public class EmpController {
         else
             throw new NullPointerException();
     }
+
+    @DeleteMapping("/delete/all")
+    public void delete(@RequestBody List<Employee> emps)
+    {
+        if(emps.size()!=0)
+            emps.forEach(emp->empRepo.deleteEmp(emp.getId()));
+        else
+            throw new NullPointerException();
+    }
+
 
     @PutMapping("/update")
     @Consumes({MediaType.APPLICATION_JSON})
