@@ -2,6 +2,7 @@ package com.benz.reactive.dao;
 
 import com.benz.reactive.model.Employee;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.data.redis.core.HashOperations;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Repository;
@@ -14,7 +15,7 @@ public class EmployeeRepository implements EmployeeDAO {
     private HashOperations<String,Long,Employee> hashOperations;
 
     @Autowired
-    public EmployeeRepository(RedisTemplate<String,Employee> redisTemplate)
+    public EmployeeRepository(@Qualifier("redisTemplate") RedisTemplate<String,Employee> redisTemplate)
     {
               this.hashOperations=redisTemplate.opsForHash();
     }
