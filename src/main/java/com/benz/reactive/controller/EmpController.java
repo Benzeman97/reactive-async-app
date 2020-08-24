@@ -3,16 +3,18 @@ package com.benz.reactive.controller;
 import com.benz.reactive.dao.EmployeeRepository;
 import com.benz.reactive.model.Employee;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
-import javax.ws.rs.Consumes;
-import javax.ws.rs.Produces;
-import javax.ws.rs.core.MediaType;
 import java.util.Date;
 import java.util.List;
-import java.util.Map;
 
 @RestController
 @RequestMapping("/emp")
@@ -21,27 +23,27 @@ public class EmpController {
     private EmployeeRepository empRepo;
 
     @Autowired
-    public EmpController(EmployeeRepository empRepo)
-    {
-        this.empRepo=empRepo;
+    public EmpController(EmployeeRepository empRepo) {
+        this.empRepo = empRepo;
+    }
+
+    @GetMapping("/get")
+    public ResponseEntity<?> getEmp() {
+        return new ResponseEntity<>(HttpStatus.OK);
     }
 
     @PostMapping("/save")
-    @Consumes({MediaType.APPLICATION_JSON})
-    public void saveEmp(@RequestBody Mono<Employee> emp)
-    {
-             emp.subscribe(e-> {
-                 e.setDate(new Date());
-                 empRepo.saveEmp(e);
-             });
+    public void saveEmp(@RequestBody Mono<Employee> emp) {
+        emp.subscribe(e -> {
+            e.setDate(new Date());
+            empRepo.saveEmp(e);
+        });
     }
 
     @PostMapping("/save/all")
-    @Consumes({MediaType.APPLICATION_JSON})
-    public void saveEmpAll(@RequestBody Flux<Employee> emps)
-    {
-         emps.collectMap(e->e.getId(),emp->emp)
-         .subscribe(map->empRepo.saveEmpAll((List<Employee>) map));
+    public void saveEmpAll(@RequestBody Flux<Employee> emps) {
+        emps.collectMap(e -> e.getId(), emp -> emp)
+                .subscribe(map -> empRepo.saveEmpAll((List<Employee>) map));
     }
 
   /*  @DeleteMapping("/delete")
