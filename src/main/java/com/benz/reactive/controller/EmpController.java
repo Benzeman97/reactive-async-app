@@ -40,13 +40,11 @@ public class EmpController {
     @Consumes({MediaType.APPLICATION_JSON})
     public void saveEmpAll(@RequestBody Flux<Employee> emps)
     {
-        emps.collectMap(e->{
-           e.setDate(new Date());
-
-        });
+         emps.collectMap(e->e.getId(),emp->emp)
+         .subscribe(map->empRepo.saveEmpAll((List<Employee>) map));
     }
 
-    @DeleteMapping("/delete")
+  /*  @DeleteMapping("/delete")
     public void delete(@RequestBody Employee emp)
     {
         if(emp.getId()!=0)
@@ -91,6 +89,6 @@ public class EmpController {
     public Map<Long,Employee> getEmployees()
     {
           return empRepo.findAll();
-    }
+    }*/
 
 }
